@@ -1,3 +1,5 @@
+import com.neuronrobotics.bowlerstudio.vitamins.Vitamins
+
 import eu.mihosoft.vrl.v3d.CSG
 import eu.mihosoft.vrl.v3d.Cube
 import eu.mihosoft.vrl.v3d.Cylinder
@@ -270,27 +272,27 @@ class BoardMaker{
 						.union(	wirekeepaway)	
 						.difference(fullBoard)
 		double vexGrid = 1.0/2.0*25.4
-		CSG vexMount = Vitamins.get( "vexFlatSheet","Aluminum 1x5")		
-						.intersect(new Cube(vexGrid*7.5).toCSG())
-						.rotz(-90)
-						.movey(	-caseOutSet+caseRounding+vexGrid/2)	
-						.movex(-caseOutSet+2-boardConnects-vexGrid/2)
-						.movez(		backBottom.getMinZ())	
-		vexMount=vexMount.movey(vexGrid*2)
-					.union(vexMount)
-		CSG vexMountB = vexMount.movex(vexGrid*7)
-		def vexAttach = vexMount.union(vexMountB)
-						.hull()
-						.difference([vexMount.hull(),vexMountB.hull()])
-						
-		def allvexbits = CSG.unionAll([vexMountB,
-						vexMount,
-						vexAttach
-						])
-						.toYMin()
-						.movey(backBottom.getMinY()+caseRounding)	
-		backBottom=	backBottom	
-			.union(allvexbits)
+//		CSG vexMount = Vitamins.get( "vexFlatSheet","Aluminum 1x5")		
+//						.intersect(new Cube(vexGrid*7.5).toCSG())
+//						.rotz(-90)
+//						.movey(	-caseOutSet+caseRounding+vexGrid/2)	
+//						.movex(-caseOutSet+2-boardConnects-vexGrid/2)
+//						.movez(		backBottom.getMinZ())	
+//		vexMount=vexMount.movey(vexGrid*2)
+//					.union(vexMount)
+//		CSG vexMountB = vexMount.movex(vexGrid*7)
+//		def vexAttach = vexMount.union(vexMountB)
+//						.hull()
+//						.difference([vexMount.hull(),vexMountB.hull()])
+//						
+//		def allvexbits = CSG.unionAll([vexMountB,
+//						vexMount,
+//						vexAttach
+//						])
+//						.toYMin()
+//						.movey(backBottom.getMinY()+caseRounding)	
+//		backBottom=	backBottom	
+//			.union(allvexbits)
 		println "Performing keepaway opperation ..."
 		def fullBoardMink =CSG.unionAll(fullBoard.minkowski(new Cube(printerOffset.getMM()).toCSG()))
 		def backBottomMink =CSG.unionAll(backBottom.minkowski(new Cube(printerOffset.getMM()).toCSG()))
@@ -312,8 +314,8 @@ class BoardMaker{
 						.toZMin()
 						.movez(-caseRounding*2)
 						.intersect(rounding)
-						.difference(fullBoardMink)
-						.difference(backBottomMink)	
+						//.difference(fullBoardMink)
+						//.difference(backBottomMink)	
 		CSG backTop = basicLug.union(basicLug.toZMax().movez(	caseheight))
 						.hull()
 						.toZMin()
@@ -321,9 +323,21 @@ class BoardMaker{
 						.intersect(rounding)
 						.toYMin()
 						.movey(backeOfCaseY)
-						.difference(fullBoardMink)	
-						.difference(backBottomMink)	
+						//.difference(fullBoardMink)	
+						//.difference(backBottomMink)	
+		CSG crossbar = new RoundedCube(30,backeOfCaseY+(basicLug.getTotalY())-basicLug.getMinY(),lowerCaseDepth)
+						.cornerRadius(caseRounding)
+						.toCSG()
+						.toYMin()
+						.movex(boardX/2)
+						.movey(basicLug.getMinY())
+						.toZMax()
+						.movez(frontTop.getMaxZ())
 						
+		CSG topPlate  = frontTop.union(backTop)
+							.union(crossbar)
+							.difference(fullBoardMink)
+							.difference(backBottomMink)
 		CSG bottom = backBottom			
 		bottom.setManufacturing({ toMfg ->
 			return toMfg
@@ -331,21 +345,15 @@ class BoardMaker{
 					.toYMin()
 					.toZMin()
 		})	
-		frontTop.setManufacturing({ toMfg ->
+		topPlate.setManufacturing({ toMfg ->
 			return toMfg
 					.toXMin()
 					.toYMin()
-					.rotx(-90)
+					.rotx(-180)
 					.toZMin()
-		})		
-		backTop.setManufacturing({ toMfg ->
-			return toMfg
-					.toXMin()
-					.toYMin()
-					.rotx(90)
-					.toZMin()
-		})										
-		def caseParts = [bottom,frontTop,backTop]
+		})	
+												
+		def caseParts = [bottom,topPlate]
 		return caseParts
 		board.addAll(caseParts)
 		return board
