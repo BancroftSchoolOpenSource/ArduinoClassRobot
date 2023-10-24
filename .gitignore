@@ -29,3 +29,5 @@ replay_pid*
 /.cproject
 /cache/
 /*.class
+/CaseTop.stl
+/CaseBottom.stl

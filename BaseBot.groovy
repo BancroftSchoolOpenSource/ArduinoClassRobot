@@ -1,12 +1,17 @@
+import java.nio.file.Paths
+
+import com.neuronrobotics.bowlerstudio.scripting.ScriptingEngine
 import com.neuronrobotics.bowlerstudio.vitamins.Vitamins
 
 import eu.mihosoft.vrl.v3d.CSG
 import eu.mihosoft.vrl.v3d.Cube
 import eu.mihosoft.vrl.v3d.Cylinder
+import eu.mihosoft.vrl.v3d.FileUtil
 import eu.mihosoft.vrl.v3d.RoundedCube
+import eu.mihosoft.vrl.v3d.Transform
 import eu.mihosoft.vrl.v3d.parametrics.LengthParameter
 
-// code here
+double caseRounding = 4
 
 class BoardMaker{
 	static double radius = 1
@@ -339,25 +344,25 @@ class BoardMaker{
 							.difference(fullBoardMink)
 							.difference(backBottomMink)
 		CSG bottom = backBottom			
-		bottom.setManufacturing({ toMfg ->
-			return toMfg
-					.toXMin()
-					.toYMin()
-					.toZMin()
-		})	
-		topPlate.setManufacturing({ toMfg ->
-			return toMfg
-					.toXMin()
-					.toYMin()
-					.rotx(-180)
-					.toZMin()
-		})	
+//		bottom.setManufacturing({ toMfg ->
+//			return toMfg
+//					.toXMin()
+//					.toYMin()
+//					.toZMin()
+//		})	
+//		topPlate.setManufacturing({ toMfg ->
+//			return toMfg
+//					.toXMin()
+//					.toYMin()
+//					.rotx(-180)
+//					.toZMin()
+//		})	
 		bottom.setName("CaseBottom")
 		topPlate.setName("CaseTop")
 		def caseParts = [bottom,topPlate]
 		return caseParts
-		board.addAll(caseParts)
-		return board
+		//board.addAll(caseParts)
+		//return board
 	}
 	def makeRoundedCyl(def rad,def height, def corner,def resolution){
 		def minHeight = height-corner*2
@@ -378,7 +383,80 @@ class BoardMaker{
 		return CSG.unionAll(cylParts).hull().toZMin()
 	}
 }
-return new BoardMaker().makeCase()
+File dir = ScriptingEngine.getRepositoryCloneDirectory("https://github.com/BancroftSchoolOpenSource/ArduinoClassRobot.git")
+
+File topSTL = new File(dir.getAbsolutePath()+"/CaseTop.stl")
+File botSTL = new File(dir.getAbsolutePath()+"/CaseBottom.stl")
+
+if(!topSTL.exists()||!botSTL.exists()) {
+	println "Producing Case STL part"
+	def parts = new BoardMaker().makeCase()
+	for(CSG part:parts) {
+		FileUtil.write(Paths.get(dir.getAbsolutePath()+"/"+part.getName()+".stl"),
+			part.toStlString());
+	}
+}else {
+	println "Loading Cas parts from STL"
+}
+
+CSG top = Vitamins.get(topSTL);
+CSG bot = Vitamins.get(botSTL);
+top.setName("CaseTop")
+bot.setName("CaseBottom")
+bot.setManufacturing({ toMfg ->
+	return toMfg
+			.toXMin()
+			.toYMin()
+			.toZMin()
+})
+top.setManufacturing({ toMfg ->
+	return toMfg
+			.toXMin()
+			.toYMin()
+			.rotx(-180)
+			.toZMin()
+})
+LengthParameter tailLength		= new LengthParameter("Cable Cut Out Length",30,[500, 0.01])
+tailLength.setMM(100)
+CSG motor = Vitamins.get("hobbyServo", "tproSG90")
+CSG horn = Vitamins.get("hobbyServoHorn", "tproSG90_1")
+			.movez(motor.getMaxZ())
+Transform leftSide  = new Transform()
+Transform rightSide  = new Transform()
+
+CSG asmOfDrive = motor.union(horn).rotz(180)
+					.movez(-8)
+					.movey(10)
+
+CSG leftDrive = asmOfDrive.transformed(leftSide)
+				.roty(90)
+				.movex(bot.getMinX())
+
+CSG rightDrive = asmOfDrive.transformed(rightSide)
+				.roty(-90)
+				.movex(bot.getMaxX())
+				
+CSG bothDrive = leftDrive.union(rightDrive)
+				.toZMax()
+				.movez(bot.getMinZ())
+				.movey(5)
+				
+CSG servoBlock = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()-caseRounding*2, bothDrive.getTotalZ())
+					.toCSG()		
+					.toZMax()
+					.movez(bot.getMinZ())
+					.toYMax()
+					.movey(bot.getMaxY()-caseRounding)
+					.toXMax()
+					.movex(bot.getMaxX()-caseRounding)
+CSG blockCordCut = servoBlock.toYMax()
+						.movey(servoBlock.getMinY()+12)
+						.movez(-5)
+bot=bot.union(servoBlock)
+		.difference(bothDrive)	
+		.union(blockCordCut)	
+
+return [top,bot]
 
 
 
