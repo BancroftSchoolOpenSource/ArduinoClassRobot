@@ -454,7 +454,7 @@ CSG blockCordCut = servoBlock.toYMax()
 						.movez(-5)
 bot=bot.union(servoBlock)
 		.difference(bothDrive)	
-		.union(blockCordCut)	
+		.difference(blockCordCut)	
 
 return [top,bot]
 
