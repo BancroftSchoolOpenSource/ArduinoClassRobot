@@ -325,7 +325,7 @@ class BoardMaker{
 						.movey(backeOfCaseY)
 						//.difference(fullBoardMink)	
 						//.difference(backBottomMink)	
-		CSG crossbar = new RoundedCube(30,backeOfCaseY+(basicLug.getTotalY())-basicLug.getMinY(),lowerCaseDepth)
+		CSG crossbar = new RoundedCube(30,backeOfCaseY+(basicLug.getTotalY())-basicLug.getMinY(),caseRounding*2)
 						.cornerRadius(caseRounding)
 						.toCSG()
 						.toYMin()
@@ -378,3 +378,7 @@ class BoardMaker{
 	}
 }
 return new BoardMaker().makeCase()
+
+
+
+
