@@ -352,7 +352,8 @@ class BoardMaker{
 					.rotx(-180)
 					.toZMin()
 		})	
-												
+		bottom.setName("CaseBottom")
+		topPlate.setName("CaseTop")
 		def caseParts = [bottom,topPlate]
 		return caseParts
 		board.addAll(caseParts)
