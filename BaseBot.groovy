@@ -8,8 +8,10 @@ import eu.mihosoft.vrl.v3d.Cube
 import eu.mihosoft.vrl.v3d.Cylinder
 import eu.mihosoft.vrl.v3d.FileUtil
 import eu.mihosoft.vrl.v3d.RoundedCube
+import eu.mihosoft.vrl.v3d.Sphere
 import eu.mihosoft.vrl.v3d.Transform
 import eu.mihosoft.vrl.v3d.parametrics.LengthParameter
+import javafx.scene.paint.Color
 
 double caseRounding = 4
 
@@ -417,30 +419,68 @@ top.setManufacturing({ toMfg ->
 			.toZMin()
 })
 LengthParameter tailLength		= new LengthParameter("Cable Cut Out Length",30,[500, 0.01])
-tailLength.setMM(100)
+tailLength.setMM(25)
 CSG motor = Vitamins.get("hobbyServo", "tproSG90")
 CSG horn = Vitamins.get("hobbyServoHorn", "tproSG90_1")
 			.movez(motor.getMaxZ())
-Transform leftSide  = new Transform()
-Transform rightSide  = new Transform()
+double hornDepth = horn.getTotalZ()
+double halfServoDistance = motor.getTotalX()/2
+CSG tire = Vitamins.get("oRing", "2inchOD")
 
-CSG asmOfDrive = motor.union(horn).rotz(180)
-					.movez(-8)
-					.movey(10)
+CSG wheepCore = new Cylinder(tire.getTotalZ()/2-3, hornDepth).toCSG()
+				.roty(90)
+				.moveToCenterX()
+				.difference(tire)
+				.roty(-90)
+				.toZMin()
+				.movez(motor.getMaxZ())
+CSG tireAlligned  = tire.roty(90)
+				.movez(motor.getMaxZ()+wheepCore.getTotalZ()/2)
+				
+Transform leftSide  = new Transform()
+						.movez(-8)
+						.movey(10)
+						.roty(90)
+						.movex(bot.getMinX())
+						.movez(bot.getMinZ()-halfServoDistance)
+						.movey(5)
+						
+Transform rightSide  = new Transform()
+						.movez(-8)
+						.movey(10)
+						.roty(-90)
+						.movex(bot.getMaxX())
+						.movez(bot.getMinZ()-halfServoDistance)
+						.movey(5)
+						
+CSG asmOfDrive = motor
+					.union(horn)
+					.rotz(180)
 
 CSG leftDrive = asmOfDrive.transformed(leftSide)
-				.roty(90)
-				.movex(bot.getMinX())
+				
 
 CSG rightDrive = asmOfDrive.transformed(rightSide)
-				.roty(-90)
-				.movex(bot.getMaxX())
+
 				
 CSG bothDrive = leftDrive.union(rightDrive)
-				.toZMax()
-				.movez(bot.getMinZ())
-				.movey(5)
+
+
 				
+CSG leftWheel =  wheepCore.transformed(leftSide).difference(leftDrive)
+CSG rightWheel =  wheepCore.transformed(rightSide).difference(rightDrive)
+CSG tireMovedR = tireAlligned.transformed(rightSide).setColor(Color.BLACK)
+tireMovedR.setManufacturing({ toMfg ->
+	return null
+})
+CSG tireMovedL = tireAlligned.transformed(leftSide).setColor(Color.BLACK)
+tireMovedL.setManufacturing({ toMfg ->
+	return null
+})
+bothDrive.setColor(Color.SILVER)
+bothDrive.setManufacturing({ toMfg ->
+	return null
+})
 CSG servoBlock = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()-caseRounding*2, bothDrive.getTotalZ())
 					.toCSG()		
 					.toZMax()
@@ -449,14 +489,28 @@ CSG servoBlock = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()-caseRou
 					.movey(bot.getMaxY()-caseRounding)
 					.toXMax()
 					.movex(bot.getMaxX()-caseRounding)
+CSG servoCover = servoBlock.difference(servoBlock.movez(2))
+					.movez(-2)
+double distanceFromBottomToGround= Math.abs(tireMovedR.getMinZ()- servoCover.getMinZ())
+CSG Caster= new Sphere(distanceFromBottomToGround,20,30).toCSG()
+
+Caster=Caster.difference(Caster.getBoundingBox().toZMin())
+			.movez(servoCover.getMinZ())
+			.movex(servoCover.getCenterX())
+			.toYMax()
+			.movey(servoCover.getMaxY())
+servoCover=servoCover.union(Caster)
 CSG blockCordCut = servoBlock.toYMax()
 						.movey(servoBlock.getMinY()+12)
 						.movez(-5)
 bot=bot.union(servoBlock)
 		.difference(bothDrive)	
 		.difference(blockCordCut)	
+		
+CSG coverscrew = Vitamins.get("chamferedScrew", "M3x16")
+		
 
-return [top,bot]
+return [top,bot,servoCover,bothDrive,leftWheel,rightWheel,tireMovedR,tireMovedL]
 
 
 
