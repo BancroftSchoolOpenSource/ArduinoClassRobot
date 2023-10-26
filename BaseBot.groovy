@@ -458,21 +458,30 @@ Transform rightSide  = new Transform()
 						.movey(5)
 						
 CSG asmOfDrive = motor
-					.union(horn)
+					//.union(horn)
 					.rotz(180)
 
 CSG leftDrive = asmOfDrive.transformed(leftSide)
 				
-
 CSG rightDrive = asmOfDrive.transformed(rightSide)
+CSG leftDriveHorn = horn.transformed(leftSide)
 
+CSG rightDriveHorn = horn.transformed(rightSide)
 				
 CSG bothDrive = leftDrive.union(rightDrive)
 
 
 				
-CSG leftWheel =  wheepCore.transformed(leftSide).difference(leftDrive)
-CSG rightWheel =  wheepCore.transformed(rightSide).difference(rightDrive)
+CSG leftWheel =  wheepCore.transformed(leftSide).difference(leftDriveHorn)
+CSG rightWheel =  wheepCore.transformed(rightSide).difference(rightDriveHorn)
+leftDriveHorn.setColor(Color.BLACK)
+	.setManufacturing({ toMfg ->
+	return null
+})
+rightDriveHorn.setColor(Color.BLACK)
+	.setManufacturing({ toMfg ->
+	return null
+})
 CSG tireMovedR = tireAlligned.transformed(rightSide).setColor(Color.BLACK)
 tireMovedR.setManufacturing({ toMfg ->
 	return null
@@ -481,7 +490,7 @@ CSG tireMovedL = tireAlligned.transformed(leftSide).setColor(Color.BLACK)
 tireMovedL.setManufacturing({ toMfg ->
 	return null
 })
-bothDrive.setColor(Color.SILVER)
+bothDrive.setColor(Color.BLUE)
 bothDrive.setManufacturing({ toMfg ->
 	return null
 })
@@ -576,7 +585,26 @@ screws.setColor(Color.SILVER)
 .setManufacturing({ toMfg ->
 	return null
 })
-return [top,bot,servoCover,bothDrive,leftWheel,rightWheel,tireMovedR,tireMovedL,NineVolt,screws]
+
+
+top.addAssemblyStep(2, new Transform().movez(30))
+
+bothDrive.addAssemblyStep(3, new Transform().movez(-30))
+servoCover.addAssemblyStep(4, new Transform().movez(-40))
+screws.addAssemblyStep(5, new Transform().movez(-60))
+NineVolt.addAssemblyStep(6, new Transform().movey(-60))
+
+leftWheel.addAssemblyStep(8, new Transform().movex(-30))
+tireMovedL.addAssemblyStep(8, new Transform().movex(-30))
+tireMovedL.addAssemblyStep(7, new Transform().movex(-10))
+leftDriveHorn.addAssemblyStep(9, new Transform().movex(-40))
+
+rightWheel.addAssemblyStep(8, new Transform().movex(30))
+tireMovedR.addAssemblyStep(8, new Transform().movex(30))
+tireMovedR.addAssemblyStep(7, new Transform().movex(10))
+rightDriveHorn.addAssemblyStep(9, new Transform().movex(40))
+
+return [top,bot,servoCover,bothDrive,leftWheel,rightWheel,tireMovedR,tireMovedL,NineVolt,screws,rightDriveHorn,leftDriveHorn]
 
 
 
