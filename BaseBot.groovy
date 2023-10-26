@@ -491,7 +491,8 @@ CSG servoBlock = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()-caseRou
 					.movex(bot.getMaxX()-caseRounding)
 CSG servoCover = servoBlock.difference(servoBlock.movez(2))
 					.movez(-2)
-double distanceFromBottomToGround= Math.abs(tireMovedR.getMinZ()- servoCover.getMinZ())
+double servoCoverSurfaceDistance  = servoCover.getMinZ()
+double distanceFromBottomToGround= Math.abs(tireMovedR.getMinZ()- servoCoverSurfaceDistance)
 CSG Caster= new Sphere(distanceFromBottomToGround,20,30).toCSG()
 
 Caster=Caster.difference(Caster.getBoundingBox().toZMin())
@@ -499,18 +500,79 @@ Caster=Caster.difference(Caster.getBoundingBox().toZMin())
 			.movex(servoCover.getCenterX())
 			.toYMax()
 			.movey(servoCover.getMaxY())
-servoCover=servoCover.union(Caster)
+
 CSG blockCordCut = servoBlock.toYMax()
 						.movey(servoBlock.getMinY()+12)
 						.movez(-5)
-bot=bot.union(servoBlock)
-		.difference(bothDrive)	
-		.difference(blockCordCut)	
+	
 		
 CSG coverscrew = Vitamins.get("chamferedScrew", "M3x16")
-		
+					.rotx(180)
+					.toZMin()
+					.movez(servoCoverSurfaceDistance)
+					.movex(servoCover.getMinX())
+double InsetScrew = 10
+CSG screws = coverscrew.movex(InsetScrew).union(coverscrew.movex(servoCover.getTotalX()-InsetScrew))
+				.movey(servoCover.getTotalY()/2)
 
-return [top,bot,servoCover,bothDrive,leftWheel,rightWheel,tireMovedR,tireMovedL]
+double batterySunkIn =10
+CSG NineVolt = Vitamins.get("BatteryBox", "9vbattery")
+CSG batteryHolder = NineVolt.getBoundingBox().scalex(1.15)
+						.scalez(1.2)
+						.scaley(1.15)
+						.toYMin()
+						.movey(NineVolt.getMinY())
+batteryHolder=batteryHolder.intersect(batteryHolder.movez(-batterySunkIn))	
+					.difference(NineVolt)					
+
+Transform tf9v = new Transform()
+			.movex(servoCover.getCenterX())
+			.movey(-NineVolt.getMinY()-servoCover.getMinY())
+			.movez(-NineVolt.getMaxZ()+servoCoverSurfaceDistance+batterySunkIn)
+
+
+NineVolt=NineVolt.transformed(tf9v)
+batteryHolder=batteryHolder.transformed(tf9v)
+
+servoCover=servoCover
+	.union(Caster)
+	.union(batteryHolder)
+	.difference(NineVolt)
+	.difference(screws)
+bot=bot.union(servoBlock)
+.difference(bothDrive)
+.difference(blockCordCut)
+.difference(NineVolt)
+.difference(screws)
+
+servoCover.setName("servoCover")
+.setManufacturing({ toMfg ->
+	return toMfg.roty(180).toZMin()
+})
+
+leftWheel.setName("leftWheel")
+.setManufacturing({ toMfg ->
+	return toMfg.roty(-90).toZMin()
+})
+
+rightWheel.setName("rightWheel")
+.setManufacturing({ toMfg ->
+	return toMfg.roty(90).toZMin()
+})
+bot
+.setManufacturing({ toMfg ->
+	return toMfg.toZMin()
+})
+NineVolt.setColor(Color.SILVER)
+.setManufacturing({ toMfg ->
+	return null
+})
+
+screws.setColor(Color.SILVER)
+.setManufacturing({ toMfg ->
+	return null
+})
+return [top,bot,servoCover,bothDrive,leftWheel,rightWheel,tireMovedR,tireMovedL,NineVolt,screws]
 
 
 
