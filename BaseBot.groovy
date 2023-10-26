@@ -1,3 +1,4 @@
+import java.nio.file.Files
 import java.nio.file.Paths
 
 import com.neuronrobotics.bowlerstudio.scripting.ScriptingEngine
@@ -385,7 +386,7 @@ class BoardMaker{
 		return CSG.unionAll(cylParts).hull().toZMin()
 	}
 }
-File dir = ScriptingEngine.getRepositoryCloneDirectory("https://github.com/BancroftSchoolOpenSource/ArduinoClassRobot.git")
+File dir = new File(System.getProperty("java.io.tmpdir"))
 
 File topSTL = new File(dir.getAbsolutePath()+"/CaseTop.stl")
 File botSTL = new File(dir.getAbsolutePath()+"/CaseBottom.stl")
