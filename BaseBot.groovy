@@ -393,8 +393,11 @@ File botSTL = new File(dir.getAbsolutePath()+"/CaseBottom.stl")
 if(!topSTL.exists()||!botSTL.exists()) {
 	println "Producing Case STL part"
 	def parts = new BoardMaker().makeCase()
+	
 	for(CSG part:parts) {
-		FileUtil.write(Paths.get(dir.getAbsolutePath()+"/"+part.getName()+".stl"),
+		def filename=dir.getAbsolutePath()+"/"+part.getName()+".stl"
+		println "Writing STL cache "+filename
+		FileUtil.write(Paths.get(filename),
 			part.toStlString());
 	}
 }else {
