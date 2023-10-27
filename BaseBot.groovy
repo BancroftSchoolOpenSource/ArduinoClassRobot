@@ -13,6 +13,7 @@ import eu.mihosoft.vrl.v3d.Sphere
 import eu.mihosoft.vrl.v3d.Transform
 import eu.mihosoft.vrl.v3d.parametrics.LengthParameter
 import javafx.scene.paint.Color
+//CSG vitamin_hobbyServo_fs90r = Vitamins.get("hobbyServo", "fs90r")
 
 double caseRounding = 4
 
@@ -424,7 +425,7 @@ top.setManufacturing({ toMfg ->
 })
 LengthParameter tailLength		= new LengthParameter("Cable Cut Out Length",30,[500, 0.01])
 tailLength.setMM(25)
-CSG motor = Vitamins.get("hobbyServo", "tproSG90")
+CSG motor = Vitamins.get("hobbyServo", "fs90r")
 CSG horn = Vitamins.get("hobbyServoHorn", "tproSG90_1")
 			.movez(motor.getMaxZ())
 double hornDepth = horn.getTotalZ()
