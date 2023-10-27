@@ -1,7 +1,6 @@
 import java.nio.file.Files
 import java.nio.file.Paths
 
-import com.neuronrobotics.bowlerstudio.BowlerStudio
 import com.neuronrobotics.bowlerstudio.scripting.ScriptingEngine
 import com.neuronrobotics.bowlerstudio.vitamins.Vitamins
 
@@ -688,7 +687,7 @@ try {
 		hingingPlate
 	]
 }catch(Throwable tr) {
-	BowlerStudio.printStackTrace(tr)
+	tr.printStackTrace()
 }
 
 
