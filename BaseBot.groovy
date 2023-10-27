@@ -34,7 +34,7 @@ class BoardMaker{
 	static double lowerKeepaway = 6.3
 	static double holeCornerInset = 1.8+1.5
 	static double boardConnects = 2.3
-	static double usbThickness = 8
+	static double usbThickness = 6.9
 	static double wireHeight = 5
 	static double wireRadius = 1.5
 	static double negativeWireOffset = 3-3.5
@@ -198,7 +198,7 @@ class BoardMaker{
 						.toZMin()
 						.movey(27.75)
 						
-		CSG usbkeepaway = new RoundedCube(10.4,20.73,usbThickness)
+		CSG usbkeepaway = new RoundedCube(11.1,20.73,usbThickness)
 						.cornerRadius(1)
 						.toCSG()
 						.toYMin()
