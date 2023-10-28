@@ -655,7 +655,7 @@ try {
 	top.addAssemblyStep(3, new Transform().movez(30))
 	
 	hingeScrew.addAssemblyStep(3, new Transform().movez(30))
-	hingeFastenerScrew.addAssemblyStep(3, new Transform().movez(30))
+	hingeFastenerScrew.addAssemblyStep(6, new Transform().movez(30))
 	hingingPlate.addAssemblyStep(3, new Transform().movez(30))
 	
 	hingeScrew.addAssemblyStep(2, new Transform().movex(-30))
