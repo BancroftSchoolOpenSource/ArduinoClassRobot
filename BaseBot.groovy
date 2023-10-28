@@ -549,11 +549,13 @@ try {
 	batteryHolder=batteryHolder.transformed(tf9v)
 
 	CSG workplateScrew = Vitamins.get("chamferedScrew", "M3x16")
+	CSG threads = Vitamins.get("heatedThreadedInsert", "M3")
 
 	double hingePartThickness = 5
 	double hingePartRadius=8
 	CSG hingeLug = new Cylinder(hingePartRadius-0.5, hingePartThickness).toCSG()
 			.moveToCenterZ()
+	
 	CSG hingeLugMoving = new Cylinder(hingePartRadius/2, hingePartThickness).toCSG()
 			.moveToCenterZ()
 
@@ -569,13 +571,18 @@ try {
 			.movey(top.getMaxY()-5)
 
 
-
+	CSG screwBoss = new Cylinder(5, hingePartThickness).toCSG()
+							.toZMax()
+							.movez(-2)
+							.transformed(hingeFastener)
 	CSG hingeScrew = workplateScrew.movez(hingePartThickness+2).transformed(hingeLocation)
-	CSG hingeFastenerScrew = workplateScrew.transformed(hingeFastener)
+	CSG hingeFastenerScrew = workplateScrew.toZMax().transformed(hingeFastener)
 	CSG movedHingeLug=hingeLug.transformed(hingeLocation)
 	CSG hingeConnection = new Cube(hingePartRadius,hingePartRadius,hingePartThickness).toCSG()
 						.toXMin()
 	hingeLugMoving=hingeLugMoving.union(hingeConnection)
+	
+	
 	CSG hingingPlate = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()+hingePartRadius+hingePartRadius/2, 2).toCSG()
 			.toZMin()
 			.movez(top.getMaxZ())
@@ -588,6 +595,7 @@ try {
 			.difference(hingeFastenerScrew)
 			
 	top=top.union(movedHingeLug)
+			.union(screwBoss)
 			.difference(hingeScrew)
 			.difference(hingeFastenerScrew)
 	servoCover=servoCover
