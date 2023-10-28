@@ -537,7 +537,7 @@ try {
 			.toYMin()
 			.movey(NineVolt.getMinY())
 	batteryHolder=batteryHolder.intersect(batteryHolder.movez(-batterySunkIn))
-			.difference(NineVolt)
+			
 
 	Transform tf9v = new Transform()
 			.movex(servoCover.getCenterX())
@@ -547,6 +547,9 @@ try {
 
 	NineVolt=NineVolt.transformed(tf9v)
 	batteryHolder=batteryHolder.transformed(tf9v)
+					.toZMax()
+					.movez(servoCover.getMaxZ())
+					.difference(NineVolt)
 
 	CSG workplateScrew = Vitamins.get("chamferedScrew", "M3x16")
 	CSG threads = Vitamins.get("heatedThreadedInsert", "M3")
@@ -576,11 +579,15 @@ try {
 							.movez(-2)
 							.transformed(hingeFastener)
 	CSG hingeScrew = workplateScrew.movez(hingePartThickness+2).transformed(hingeLocation)
+	
 	CSG hingeFastenerScrew = workplateScrew.toZMax().transformed(hingeFastener)
 	CSG movedHingeLug=hingeLug.transformed(hingeLocation)
 	CSG hingeConnection = new Cube(hingePartRadius,hingePartRadius,hingePartThickness).toCSG()
 						.toXMin()
 	hingeLugMoving=hingeLugMoving.union(hingeConnection)
+	// Threaded inserts for the top plate
+	CSG hingeThread = threads.toZMax().movez(-hingePartThickness/2-0.5).transformed(hingeLocation)
+	CSG closureThreads = threads.toZMax().movez(-2).transformed(hingeFastener)
 	
 	
 	CSG hingingPlate = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()+hingePartRadius+hingePartRadius/2, 2).toCSG()
@@ -593,11 +600,13 @@ try {
 			.union(hingeLugMoving.movez(-hingePartThickness-1).transformed(hingeLocation))
 			.difference(hingeScrew)	
 			.difference(hingeFastenerScrew)
+			.difference(hingeThread)
 			
 	top=top.union(movedHingeLug)
 			.union(screwBoss)
 			.difference(hingeScrew)
 			.difference(hingeFastenerScrew)
+			.difference(closureThreads)
 	servoCover=servoCover
 			.union(Caster)
 			.union(batteryHolder)
@@ -609,11 +618,19 @@ try {
 			.difference(NineVolt)
 			.difference(screws)
 			
-	
+	hingeThread.setColor(Color.GOLD)
+			.setManufacturing({ toMfg ->
+				return null
+			})
+	closureThreads.setColor(Color.GOLD)
+			.setManufacturing({ toMfg ->
+				return null
+			})
 	hingingPlate.setName("hingingPlate")
 			.setManufacturing({ toMfg ->
 				return toMfg.roty(180).toZMin()
 			})
+	
 	hingeScrew.setColor(Color.SILVER)
 			.setManufacturing({ toMfg ->
 				return null
@@ -660,15 +677,23 @@ try {
 				return toMfg.roty(180).toZMin()
 			})
 
-	top.addAssemblyStep(3, new Transform().movez(30))
+	top.addAssemblyStep(4, new Transform().movez(30))
 	
-	hingeScrew.addAssemblyStep(3, new Transform().movez(30))
-	hingeFastenerScrew.addAssemblyStep(3, new Transform().movez(30))
-	hingingPlate.addAssemblyStep(3, new Transform().movez(30))
+	hingeScrew.addAssemblyStep(4, new Transform().movez(30))
+	hingeFastenerScrew.addAssemblyStep(4, new Transform().movez(30))
+	hingingPlate.addAssemblyStep(4, new Transform().movez(30))
+	closureThreads.addAssemblyStep(4, new Transform().movez(30))
+	hingeThread.addAssemblyStep(4, new Transform().movez(30))
 	
-	hingeScrew.addAssemblyStep(2, new Transform().movex(-30))
+	
+	closureThreads.addAssemblyStep(1, new Transform().movez(20))
+	hingeThread.addAssemblyStep(1, new Transform().movex(30))
+	hingeThread.addAssemblyStep(2, new Transform().movez(30))
+	
+	
+	hingeScrew.addAssemblyStep(3, new Transform().movex(-30))
 	hingeFastenerScrew.addAssemblyStep(6, new Transform().movez(60))
-	hingingPlate.addAssemblyStep(1, new Transform().movez(30))
+	hingingPlate.addAssemblyStep(2, new Transform().movez(30))
 	
 	
 
@@ -702,7 +727,9 @@ try {
 		leftDriveHorn,
 		hingeScrew,
 		hingeFastenerScrew,
-		hingingPlate
+		hingingPlate,
+		hingeThread,
+		closureThreads
 	]
 }catch(Throwable tr) {
 	tr.printStackTrace()
