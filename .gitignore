@@ -31,3 +31,5 @@ replay_pid*
 /*.class
 /CaseTop.stl
 /CaseBottom.stl
+/manufacturing/
+/CSGdatabase.json
