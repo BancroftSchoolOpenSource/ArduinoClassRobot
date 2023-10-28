@@ -652,22 +652,32 @@ try {
 				return toMfg.roty(180).toZMin()
 			})
 
-	top.addAssemblyStep(2, new Transform().movez(30))
+	top.addAssemblyStep(3, new Transform().movez(30))
+	
+	hingeScrew.addAssemblyStep(3, new Transform().movez(30))
+	hingeFastenerScrew.addAssemblyStep(3, new Transform().movez(30))
+	hingingPlate.addAssemblyStep(3, new Transform().movez(30))
+	
+	hingeScrew.addAssemblyStep(2, new Transform().movex(-30))
+	hingeFastenerScrew.addAssemblyStep(2, new Transform().movez(60))
+	hingingPlate.addAssemblyStep(1, new Transform().movez(30))
+	
+	
 
-	bothDrive.addAssemblyStep(3, new Transform().movez(-30))
-	servoCover.addAssemblyStep(4, new Transform().movez(-40))
-	screws.addAssemblyStep(5, new Transform().movez(-60))
-	NineVolt.addAssemblyStep(6, new Transform().movey(-60))
+	bothDrive.addAssemblyStep(4, new Transform().movez(-30))
+	servoCover.addAssemblyStep(5, new Transform().movez(-40))
+	screws.addAssemblyStep(6, new Transform().movez(-60))
+	NineVolt.addAssemblyStep(7, new Transform().movey(-60))
 
-	leftWheel.addAssemblyStep(8, new Transform().movex(-30))
-	tireMovedL.addAssemblyStep(8, new Transform().movex(-30))
-	tireMovedL.addAssemblyStep(7, new Transform().movex(-10))
-	leftDriveHorn.addAssemblyStep(9, new Transform().movex(-40))
+	leftWheel.addAssemblyStep(9, new Transform().movex(-30))
+	tireMovedL.addAssemblyStep(9, new Transform().movex(-30))
+	tireMovedL.addAssemblyStep(8, new Transform().movex(-10))
+	leftDriveHorn.addAssemblyStep(10, new Transform().movex(-40))
 
-	rightWheel.addAssemblyStep(8, new Transform().movex(30))
-	tireMovedR.addAssemblyStep(8, new Transform().movex(30))
-	tireMovedR.addAssemblyStep(7, new Transform().movex(10))
-	rightDriveHorn.addAssemblyStep(9, new Transform().movex(40))
+	rightWheel.addAssemblyStep(9, new Transform().movex(30))
+	tireMovedR.addAssemblyStep(9, new Transform().movex(30))
+	tireMovedR.addAssemblyStep(8, new Transform().movex(10))
+	rightDriveHorn.addAssemblyStep(10, new Transform().movex(40))
 
 	return [
 		top,
