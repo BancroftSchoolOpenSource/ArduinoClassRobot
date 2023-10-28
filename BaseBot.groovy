@@ -655,11 +655,11 @@ try {
 	top.addAssemblyStep(3, new Transform().movez(30))
 	
 	hingeScrew.addAssemblyStep(3, new Transform().movez(30))
-	hingeFastenerScrew.addAssemblyStep(6, new Transform().movez(30))
+	hingeFastenerScrew.addAssemblyStep(3, new Transform().movez(30))
 	hingingPlate.addAssemblyStep(3, new Transform().movez(30))
 	
 	hingeScrew.addAssemblyStep(2, new Transform().movex(-30))
-	hingeFastenerScrew.addAssemblyStep(2, new Transform().movez(60))
+	hingeFastenerScrew.addAssemblyStep(6, new Transform().movez(60))
 	hingingPlate.addAssemblyStep(1, new Transform().movez(30))
 	
 	
@@ -667,7 +667,7 @@ try {
 	bothDrive.addAssemblyStep(4, new Transform().movez(-30))
 	servoCover.addAssemblyStep(5, new Transform().movez(-40))
 	screws.addAssemblyStep(6, new Transform().movez(-60))
-	NineVolt.addAssemblyStep(7, new Transform().movey(-60))
+	NineVolt.addAssemblyStep(11, new Transform().movey(-60))
 
 	leftWheel.addAssemblyStep(9, new Transform().movex(-30))
 	tireMovedL.addAssemblyStep(9, new Transform().movex(-30))
