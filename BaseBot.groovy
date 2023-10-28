@@ -711,6 +711,7 @@ try {
 	tireMovedR.addAssemblyStep(9, new Transform().movex(30))
 	tireMovedR.addAssemblyStep(8, new Transform().movex(10))
 	rightDriveHorn.addAssemblyStep(10, new Transform().movex(40))
+	CSG vitamin_hobbyServo_standard = Vitamins.get("hobbyServo", "standard")
 
 	return [
 		top,
