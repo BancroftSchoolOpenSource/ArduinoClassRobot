@@ -430,6 +430,9 @@ try {
 			.movez(motor.getMaxZ())
 	double hornDepth = horn.getTotalZ()
 	double halfServoDistance = motor.getTotalX()/2
+	double servoSplit=2
+	double plateThickness = 2;
+	double topPlateStandoff = 5.5;
 	CSG tire = Vitamins.get("oRing", "2inchOD")
 
 	CSG wheepCore = new Cylinder(tire.getTotalZ()/2-3, hornDepth).toCSG()
@@ -446,7 +449,7 @@ try {
 			.movez(-8)
 			.movey(10)
 			.roty(90)
-			.movex(bot.getMinX())
+			.movex(bot.getMinX()-servoSplit)
 			.movez(bot.getMinZ()-halfServoDistance)
 			.movey(5)
 
@@ -454,7 +457,7 @@ try {
 			.movez(-8)
 			.movey(10)
 			.roty(-90)
-			.movex(bot.getMaxX())
+			.movex(bot.getMaxX()+servoSplit)
 			.movez(bot.getMinZ()-halfServoDistance)
 			.movey(5)
 
@@ -503,8 +506,8 @@ try {
 			.movey(bot.getMaxY()-caseRounding)
 			.toXMax()
 			.movex(bot.getMaxX()-caseRounding)
-	CSG servoCover = servoBlock.difference(servoBlock.movez(2))
-			.movez(-2)
+	CSG servoCover = servoBlock.difference(servoBlock.movez(plateThickness))
+			.movez(-plateThickness)
 	double servoCoverSurfaceDistance  = servoCover.getMinZ()
 	double distanceFromBottomToGround= Math.abs(tireMovedR.getMinZ()- servoCoverSurfaceDistance)
 	CSG Caster= new Sphere(distanceFromBottomToGround,20,30).toCSG()
@@ -519,7 +522,12 @@ try {
 			.movey(servoBlock.getMinY()+12)
 			.movez(-5)
 
-
+	CSG threads = Vitamins.get("heatedThreadedInsert", "M3")
+	CSG threadsBottom = threads
+					.rotx(180)
+					.toZMin()
+					.movez(servoCoverSurfaceDistance+plateThickness)
+					.movex(servoCover.getMinX())
 	CSG coverscrew = Vitamins.get("chamferedScrew", "M3x16")
 			.rotx(180)
 			.toZMin()
@@ -528,7 +536,9 @@ try {
 	double InsetScrew = 10
 	CSG screws = coverscrew.movex(InsetScrew).union(coverscrew.movex(servoCover.getTotalX()-InsetScrew))
 			.movey(servoCover.getTotalY()/2)
-
+	CSG bottomThreads =threadsBottom.movex(InsetScrew).union(threadsBottom.movex(servoCover.getTotalX()-InsetScrew))
+			.movey(servoCover.getTotalY()/2)
+			
 	double batterySunkIn =10
 	CSG NineVolt = Vitamins.get("BatteryBox", "9vbattery")
 	CSG batteryHolder = NineVolt.getBoundingBox().scalex(1.15)
@@ -550,9 +560,13 @@ try {
 					.toZMax()
 					.movez(servoCover.getMaxZ())
 					.difference(NineVolt)
-
+	CSG  ninevoltRemovalCuts = new Cylinder(10, NineVolt.getTotalZ()+Caster.getTotalZ()).toCSG()
+							    .movez(Caster.getMinZ())
+								.movey(NineVolt.getMaxY())
+	CSG fingers = 	ninevoltRemovalCuts.movex(NineVolt.getMaxX())
+				.union(ninevoltRemovalCuts.movex(NineVolt.getMinX()))						
+							
 	CSG workplateScrew = Vitamins.get("chamferedScrew", "M3x16")
-	CSG threads = Vitamins.get("heatedThreadedInsert", "M3")
 
 	double hingePartThickness = 5
 	double hingePartRadius=8
@@ -569,35 +583,47 @@ try {
 			.movey(top.getMinY()-hingePartRadius/2-1)
 
 	Transform hingeFastener = new Transform()
-			.movez(top.getMaxZ()+2)
+			.movez(top.getMaxZ()+plateThickness)
 			.movex(top.getCenterX()+15)
 			.movey(top.getMaxY()-5)
 
 
 	CSG screwBoss = new Cylinder(5, hingePartThickness).toCSG()
 							.toZMax()
-							.movez(-2)
+							.movez(-plateThickness)
 							.transformed(hingeFastener)
-	CSG hingeScrew = workplateScrew.movez(hingePartThickness+2).transformed(hingeLocation)
+	CSG screwStandoff = new Cylinder(5, topPlateStandoff).toCSG()
+							.toZMax()
+							.movez(-plateThickness+topPlateStandoff)
+							.transformed(hingeFastener)
+	CSG hingeScrew = workplateScrew.movez(hingePartThickness+plateThickness).transformed(hingeLocation)
 	
-	CSG hingeFastenerScrew = workplateScrew.toZMax().transformed(hingeFastener)
+	CSG hingeFastenerScrew = workplateScrew.toZMax().movez(topPlateStandoff).transformed(hingeFastener)
 	CSG movedHingeLug=hingeLug.transformed(hingeLocation)
-	CSG hingeConnection = new Cube(hingePartRadius,hingePartRadius,hingePartThickness).toCSG()
+	CSG hingeConnection = new Cube(hingePartRadius+topPlateStandoff,hingePartRadius,hingePartThickness).toCSG()
 						.toXMin()
 	hingeLugMoving=hingeLugMoving.union(hingeConnection)
 	// Threaded inserts for the top plate
 	CSG hingeThread = threads.toZMax().movez(-hingePartThickness/2-0.5).transformed(hingeLocation)
-	CSG closureThreads = threads.toZMax().movez(-2).transformed(hingeFastener)
+	CSG closureThreads = threads.toZMax().movez(-plateThickness).transformed(hingeFastener)
 	
+	// USB cable resting place
+	CSG usb = new Cube(12.0, 14.5,4.56).toCSG()
+				.toYMax()
+				.toXMin()
+				.movey(servoBlock.getMaxY())
+				.movez(servoBlock.getMinZ()+6)
+				.movex(servoBlock.getMinX()+3)
 	
-	CSG hingingPlate = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()+hingePartRadius+hingePartRadius/2, 2).toCSG()
+	CSG hingingPlate = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()+hingePartRadius+hingePartRadius/2, plateThickness).toCSG()
 			.toZMin()
-			.movez(top.getMaxZ())
+			.movez(top.getMaxZ()+topPlateStandoff)
 			.movex(top.getCenterX())
 			.toYMax()
 			.movey(top.getMaxY())
 			.union(hingeLugMoving.movez(hingePartThickness+1).transformed(hingeLocation))
 			.union(hingeLugMoving.movez(-hingePartThickness-1).transformed(hingeLocation))
+			.union(screwStandoff)
 			.difference(hingeScrew)	
 			.difference(hingeFastenerScrew)
 			.difference(hingeThread)
@@ -611,12 +637,15 @@ try {
 			.union(Caster)
 			.union(batteryHolder)
 			.difference(NineVolt)
+			.difference(fingers)
 			.difference(screws)
 	bot=bot.union(servoBlock)
+			.difference(usb)
 			.difference(bothDrive)
 			.difference(blockCordCut)
 			.difference(NineVolt)
 			.difference(screws)
+			.difference(bottomThreads)
 			
 	hingeThread.setColor(Color.GOLD)
 			.setManufacturing({ toMfg ->
@@ -671,7 +700,10 @@ try {
 			.setManufacturing({ toMfg ->
 				return null
 			})
-
+	bottomThreads.setColor(Color.GOLD)
+			.setManufacturing({ toMfg ->
+				return null
+			})
 	hingingPlate.setName("hingingPlate")
 			.setManufacturing({ toMfg ->
 				return toMfg.roty(180).toZMin()
@@ -700,6 +732,7 @@ try {
 	bothDrive.addAssemblyStep(4, new Transform().movez(-30))
 	servoCover.addAssemblyStep(5, new Transform().movez(-40))
 	screws.addAssemblyStep(6, new Transform().movez(-60))
+	bottomThreads.addAssemblyStep(1, new Transform().movez(-30))
 	NineVolt.addAssemblyStep(11, new Transform().movey(-60))
 
 	leftWheel.addAssemblyStep(9, new Transform().movex(-30))
@@ -730,7 +763,9 @@ try {
 		hingeFastenerScrew,
 		hingingPlate,
 		hingeThread,
-		closureThreads
+		closureThreads,
+		bottomThreads
+		
 	]
 }catch(Throwable tr) {
 	tr.printStackTrace()

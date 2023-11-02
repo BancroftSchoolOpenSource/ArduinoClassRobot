@@ -41,4 +41,7 @@ void loop() {
   left.write(180);
   right.write(180);
   delay(1000);                      // wait for a second
+  left.write(90);
+  right.write(90);
+  delay(1000); 
 }
