@@ -611,8 +611,9 @@ try {
 	CSG usb = new Cube(12.0, 14.5,4.56).toCSG()
 				.toYMax()
 				.toXMin()
+				.toZMin()
 				.movey(servoBlock.getMaxY())
-				.movez(servoBlock.getMinZ()+6)
+				.movez(servoBlock.getMinZ())
 				.movex(servoBlock.getMinX()+3)
 	
 	CSG hingingPlate = new Cube(bot.getTotalX()-caseRounding*2,bot.getTotalY()+hingePartRadius+hingePartRadius/2, plateThickness).toCSG()
