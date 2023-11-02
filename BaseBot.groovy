@@ -426,7 +426,7 @@ try {
 	LengthParameter tailLength		= new LengthParameter("Cable Cut Out Length",30,[500, 0.01])
 	tailLength.setMM(25)
 	CSG motor = Vitamins.get("hobbyServo", "fs90r")
-	CSG horn = Vitamins.get("hobbyServoHorn", "tproSG90_1")
+	CSG horn = Vitamins.get("hobbyServoHorn", "fs90r_1")
 			.movez(motor.getMaxZ())
 	double hornDepth = horn.getTotalZ()
 	double halfServoDistance = motor.getTotalX()/2
