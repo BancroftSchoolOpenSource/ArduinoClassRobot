@@ -21,17 +21,24 @@
 
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink
 */
-
+#include <ESP32Servo.h>
+Servo left;
+Servo right;
 // the setup function runs once when you press reset or power the board
 void setup() {
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
+    left.attach(33);
+    right.attach(32);
+    left.write(90);
+    right.write(90);
+    
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
+  left.write(0);
+   right.write(0);
   delay(1000);                      // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+  left.write(180);
+  right.write(180);
   delay(1000);                      // wait for a second
 }
