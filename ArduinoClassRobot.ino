@@ -22,26 +22,41 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink
 */
 #include <ESP32Servo.h>
+#include <WiiChuck.h>
+
 Servo left;
 Servo right;
+Accessory nunchuck;
+
+ float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
+    const float run = in_max - in_min;
+    if(run == 0){
+        log_e("map(): Invalid input range, min == max");
+        return -1; // AVR returns -1, SAM returns 0
+    }
+    const float rise = out_max - out_min;
+    const float delta = x - in_min;
+    return (delta * rise) / run + out_min;
+}
 // the setup function runs once when you press reset or power the board
 void setup() {
-    left.attach(33);
-    right.attach(32);
+    left.attach(33,1000,2000);
+    right.attach(32,1000,2000);
     left.write(90);
     right.write(90);
-    
+    Serial.begin(115200);
+	  nunchuck.begin();
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  left.write(0);
-   right.write(0);
-  delay(1000);                      // wait for a second
-  left.write(180);
-  right.write(180);
-  delay(1000);                      // wait for a second
-  left.write(90);
-  right.write(90);
-  delay(1000); 
+  nunchuck.readData();    // Read inputs and update maps
+
+  float x= -fmap(nunchuck.values[1],0,255,-1.0,1.0);
+  float y= -fmap(nunchuck.values[0],0,255,-1.0,1.0);
+  int lval = 90*x  -90*y   +90;
+  int rval = -90*x  -90*y  +92;
+
+  left.write(lval);
+  right.write(rval);
 }
