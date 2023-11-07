@@ -23,11 +23,17 @@
 */
 #include <ESP32Servo.h>
 #include <WiiChuck.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
 
 Servo left;
 Servo right;
 Accessory nunchuck;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 
+bool bnoStarted = false;
  float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
     const float run = in_max - in_min;
     if(run == 0){
@@ -46,10 +52,33 @@ void setup() {
     right.write(90);
     Serial.begin(115200);
 	  nunchuck.begin();
+    bnoStarted=bno.begin();
+    delay(100);
 }
 
 // the loop function runs over and over again forever
 void loop() {
+  if(bnoStarted){
+    sensors_event_t orientationData;
+    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+    Serial.print("Orient:");
+    double x = orientationData.orientation.x;
+    double y = orientationData.orientation.y;
+    double z = orientationData.orientation.z;
+    if(abs(x)<0.001 && abs(y) < 0.001 && abs(z)<0.0001){
+      Serial.println("IMU Died, reset");
+     bnoStarted=false;
+    }else{
+      Serial.print("\tx= ");
+      Serial.print(x);
+      Serial.print(" |\ty= ");
+      Serial.print(y);
+      Serial.print(" |\tz= ");
+      Serial.println(z);  
+    }
+  }else{
+     bnoStarted=bno.begin();
+  }
   nunchuck.readData();    // Read inputs and update maps
 
   float x= -fmap(nunchuck.values[1],0,255,-1.0,1.0);
@@ -59,4 +88,6 @@ void loop() {
 
   left.write(lval);
   right.write(rval);
+  delay(100);
+
 }
