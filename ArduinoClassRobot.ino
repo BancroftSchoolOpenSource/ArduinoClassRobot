@@ -88,6 +88,6 @@ void loop() {
 
   left.write(lval);
   right.write(rval);
-  delay(100);
+  delay(10);
 
 }
