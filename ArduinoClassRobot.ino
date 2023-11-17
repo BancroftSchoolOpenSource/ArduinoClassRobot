@@ -38,6 +38,8 @@ public:
   double currentRotationZ=0;
   double rotZIncrement=1.2;
   double kp=0.01;
+  double fwdConstant=25;
+  double resetTarget=0;
   int lval ;
   int rval ;
   Chassis(){}
@@ -59,8 +61,8 @@ public:
   }
   void write(){
     double rotZErr = -kp*(rotZTarget-currentRotationZ);
-    lval = 90 * fwdTarget - 90 * rotZErr + lCenter;
-    rval = -90 * fwdTarget - 90 * rotZErr + rCenter;
+    lval = fwdConstant * fwdTarget - 90 * rotZErr + lCenter;
+    rval = -fwdConstant * fwdTarget - 90 * rotZErr + rCenter;
     if (lval < 0)
       lval = 0;
     if (rval < 0)
@@ -114,9 +116,12 @@ void loop() {
 	float y = -fmap(nunchuck.values[0], 0, 255, -1.0, 1.0);
   puppy.setTargets(x, y,bno.orientationZ);
   if(nunchuck.values[11]>0){
-    puppy.rotZTarget = 0;
+    puppy.rotZTarget = puppy.resetTarget;
   }
-
+  if(nunchuck.values[10]>0){
+    puppy.resetTarget=puppy.currentRotationZ;
+    puppy.rotZTarget=puppy.currentRotationZ;
+  }
 	delay(10);
 
 	Serial.print("\n\tx= ");
