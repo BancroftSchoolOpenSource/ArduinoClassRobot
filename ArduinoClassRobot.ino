@@ -38,7 +38,7 @@ public:
   double currentRotationZ=0;
   double rotZIncrement=1.2;
   double kp=0.01;
-  double fwdConstant=25;
+  double fwdConstant=15;
   double resetTarget=0;
   int lval ;
   int rval ;
@@ -113,7 +113,7 @@ void setup() {
 void loop() {
 
 	float x = -fmap(nunchuck.values[1], 0, 255, -1.0, 1.0);
-	float y = -fmap(nunchuck.values[0], 0, 255, -1.0, 1.0);
+	float y = fmap(nunchuck.values[0], 0, 255, -1.0, 1.0);
   puppy.setTargets(x, y,bno.orientationZ);
   if(nunchuck.values[11]>0){
     puppy.rotZTarget = puppy.resetTarget;
