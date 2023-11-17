@@ -36,7 +36,7 @@ public:
   double fwdTarget = 0;
   double rotZTarget = 0;
   double currentRotationZ=0;
-  double rotZIncrement=0.6;
+  double rotZIncrement=1.2;
   double kp=0.01;
   int lval ;
   int rval ;
