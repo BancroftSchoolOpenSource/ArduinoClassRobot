@@ -422,12 +422,45 @@ try {
 	CSG top = parts[1];
 	CSG bot = parts[0];
 
-
+	double legMountRadius = 10
+	double legMountPinLength = 10
+	double legPinRadius = 4
 	LengthParameter tailLength		= new LengthParameter("Cable Cut Out Length",30,[500, 0.01])
 	tailLength.setMM(25)
+	
 	CSG motor = Vitamins.get("hobbyServo", "fs90r")
 	CSG horn = Vitamins.get("hobbyServoHorn", "fs90r_1")
 			.movez(motor.getMaxZ())
+	CSG boltWheel = Vitamins.get("chamferedScrew", "M3x16")
+					.roty(180)
+					.toZMin()
+					.movez(motor.getMaxZ())
+					.movex(legMountRadius)
+	CSG bearingWheel = Vitamins.get("ballBearing", "695zz")
+					.movez(motor.getMaxZ()+legMountPinLength)
+					.movex(legMountRadius)
+	double legMountPinRadius = bearingWheel.getTotalX()/2+3
+					
+	CSG legPin  = new Cylinder(legPinRadius, legMountPinLength+1).toCSG()
+						.movez(motor.getMaxZ())
+						.movex(legMountRadius)
+	CSG legSquare = new Cube(legMountPinRadius+2,legMountPinRadius*2,bearingWheel.getTotalZ()+1).toCSG()
+					.toZMin()
+					.toXMin()
+	CSG legHole = new Cylinder(3.5/2.0, legMountPinRadius*2).toCSG()
+					.movez(-legMountPinRadius)
+					.rotx(90)
+					.movex(legMountPinRadius-1)
+					.movez((bearingWheel.getTotalZ()+1)/2.0)
+	CSG legMount = new Cylinder(legMountPinRadius, bearingWheel.getTotalZ()+1).toCSG()
+						.union(legSquare)
+						.difference(legHole)
+						.difference(new Cylinder(legPinRadius+1, legMountPinLength+1).toCSG())
+							.movez(motor.getMaxZ()+legMountPinLength-1)
+							.movex(legMountRadius)
+							.difference(bearingWheel.hull())
+							
+							
 	double hornDepth = horn.getTotalZ()
 	double halfServoDistance = motor.getTotalX()/2
 	double servoSplit=2
@@ -469,16 +502,54 @@ try {
 
 	CSG rightDrive = asmOfDrive.transformed(rightSide)
 	CSG leftDriveHorn = horn.transformed(leftSide)
-
+	CSG leftDriveBolt = boltWheel.transformed(leftSide)
+	CSG rightDriveBolt = boltWheel.transformed(rightSide)
+	
+	CSG leftDriveBearing = bearingWheel.transformed(leftSide)
+	CSG rightDriveBearing = bearingWheel.transformed(rightSide)
+	
+	
+	CSG leftlegMount = legMount.transformed(leftSide)
+	CSG rightlegMount = legMount.transformed(rightSide)
+	
 	CSG rightDriveHorn = horn.transformed(rightSide)
-
+	
+	
+	CSG rightLegPin= legPin.transformed(rightSide)
+	CSG leftLegPin= legPin.transformed(leftSide)
+	
+	
 	CSG bothDrive = leftDrive.union(rightDrive)
 
 
 
-	CSG leftWheel =  wheepCore.transformed(leftSide).difference(leftDriveHorn)
+	CSG leftWheel =  wheepCore.transformed(leftSide)
+						.difference(leftDriveHorn)
+						.union(leftLegPin)
+						.difference(leftDriveBolt)
+						.difference(leftDriveBearing)
 	CSG rightWheel =  wheepCore.transformed(rightSide).difference(rightDriveHorn)
+						.union(rightLegPin)
+						.difference(rightDriveBolt)
+						.difference(rightDriveBearing)
+						
+	leftDriveBearing.setColor(Color.SILVER)
+			.setManufacturing({ toMfg ->
+				return null
+			})
+	rightDriveBearing.setColor(Color.SILVER)
+			.setManufacturing({ toMfg ->
+				return null
+			})
 	leftDriveHorn.setColor(Color.BLACK)
+			.setManufacturing({ toMfg ->
+				return null
+			})
+	leftDriveBolt.setColor(Color.BLACK)
+			.setManufacturing({ toMfg ->
+				return null
+			})
+	rightDriveBolt.setColor(Color.BLACK)
 			.setManufacturing({ toMfg ->
 				return null
 			})
@@ -679,7 +750,14 @@ try {
 			.setManufacturing({ toMfg ->
 				return toMfg.roty(-90).toZMin()
 			})
-
+	leftlegMount.setName("leftlegMount")
+			.setManufacturing({ toMfg ->
+				return toMfg.roty(-90).toZMin()
+			})
+	rightlegMount.setName("rightLegMount")
+			.setManufacturing({ toMfg ->
+				return toMfg.roty(90).toZMin()
+			})
 	rightWheel.setName("rightWheel")
 			.setManufacturing({ toMfg ->
 				return toMfg.roty(90).toZMin()
@@ -740,7 +818,25 @@ try {
 	tireMovedL.addAssemblyStep(9, new Transform().movex(-30))
 	tireMovedL.addAssemblyStep(8, new Transform().movex(-10))
 	leftDriveHorn.addAssemblyStep(10, new Transform().movex(-40))
-
+	
+	leftDriveBolt.addAssemblyStep(9, new Transform().movex(-30))
+	leftDriveBolt.addAssemblyStep(8, new Transform().movex(20))
+	
+	rightDriveBolt.addAssemblyStep(9, new Transform().movex(30))
+	rightDriveBolt.addAssemblyStep(8, new Transform().movex(-20))
+	
+	leftDriveBearing.addAssemblyStep(9, new Transform().movex(-30))
+	rightDriveBearing.addAssemblyStep(9, new Transform().movex(30))
+	
+	leftlegMount.addAssemblyStep(9, new Transform().movex(-30))
+	rightlegMount.addAssemblyStep(9, new Transform().movex(30))
+	
+	leftlegMount.addAssemblyStep(8, new Transform().movex(-5))
+	rightlegMount.addAssemblyStep(8, new Transform().movex(5))
+	
+	leftDriveBearing.addAssemblyStep(8, new Transform().movex(-20))
+	rightDriveBearing.addAssemblyStep(8, new Transform().movex(20))
+	
 	rightWheel.addAssemblyStep(9, new Transform().movex(30))
 	tireMovedR.addAssemblyStep(9, new Transform().movex(30))
 	tireMovedR.addAssemblyStep(8, new Transform().movex(10))
@@ -765,7 +861,13 @@ try {
 		hingingPlate,
 		hingeThread,
 		closureThreads,
-		bottomThreads
+		bottomThreads,
+		leftDriveBolt,
+		rightDriveBolt,
+		leftDriveBearing,
+		rightDriveBearing,
+		leftlegMount,
+		rightlegMount
 		
 	]
 }catch(Throwable tr) {
